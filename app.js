@@ -27,6 +27,38 @@ app.get("/items", async (req, res) => {
     return res.status(200).json(allItems);
 });
 
+app.get("/items/:id", async (req, res) => {
+    const { id } = req.params;
+    const item = await Item.findById(id);
+    return res.status(200).json(item);
+});
+  
+app.post("/items", async (req, res) => {
+    try{
+        const newItem = new Item({ ...req.body });
+        const insertedItem = await newItem.save();
+        return res.status(201).json(insertedItem);
+    } catch (err) {
+        if (err.name ==='ValidationError') {
+            return res.status(400).send(err.message);
+        }
+        res.status(500).send("Something went wrong");
+    }
+});
+
+app.put("/items/:id", async (req, res) => {
+    const { id } = req.params;
+    await Item.updateOne({ id }, req.body);
+    const updatedItem = await Item.findById(id);
+    return res.status(200).json(updatedItem);
+});
+
+app.delete("/items/:id", async (req, res) => {
+    const { id } = req.params;
+    const deletedItem = await Item.findByIdAndDelete(id);
+    return res.status(200).json(deletedItem);
+});
+
 
 // connect to DB and start the server
 mongoose
